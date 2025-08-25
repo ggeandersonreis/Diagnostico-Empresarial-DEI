@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halpha Group - Consultoria em DE&I</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script async src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+        @font-face {
+            font-family: 'OpenDyslexic';
+            src: url('https://cdn.jsdelivr.net/npm/opendyslexic@2.0.0/dist/OpenDyslexic-Regular.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        :root {
+            --primary-blue: #0047AB;
+            --secondary-blue: #4169E1;
+            --primary-red: #A3222B;
+            --secondary-red: #DC143C;
+            --green: #228B22;
+            --purple: #8A2BE2;
+            --yellow: #FFD700;
+            --text-color: #333;
+            --bg-color: #f9f9f9;
+            --card-bg: #fff;
+            --border-color: #ccc;
+            --hover-color: #003380;
+        }
+
+        .high-contrast {
+            --text-color: #000;
+            --bg-color: #fff;
+            --card-bg: #eee;
+            --border-color: #000;
+            --primary-blue: #000;
+            --secondary-blue: #000;
+            --primary-red: #000;
+            --secondary-red: #000;
+            color: #000;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .dyslexic-font {
+            font-family: 'OpenDyslexic', 'Roboto', sans-serif !important;
+        }
+
+        .vlibras-widget {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 9999;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: var(--primary-blue);
+            color: #fff;
+            border-radius: 8px 8px 0 0;
+            margin: -20px -20px 20px -20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: center;
+            background-color: var(--secondary-blue);
+            padding: 10px 0;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .navbar button {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 10px 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .navbar button:hover {
+            background-color: var(--primary-blue);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        h2 {
+            color: var(--primary-blue);
+            border-bottom: 2px solid var(--primary-blue);
+            padding-bottom: 5px;
+            margin-top: 40px;
+            font-weight: 700;
+        }
+
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .options-container label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+        }
+        .options-container input[type="radio"] {
+            margin-right: 5px;
+            width: auto;
+        }
+        .other-input {
+            display: none;
+            margin-top: 5px;
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-blue);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: var(--hover-color);
+        }
+        .result-container {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #e6eef5;
+            border-radius: 8px;
+            border: 1px solid var(--primary-blue);
+        }
+        .result-score {
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+        }
+        .result-analysis {
+            font-style: italic;
+        }
+        .services-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .service-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            flex: 1 1 calc(50% - 20px);
+            box-sizing: border-box;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        .service-card.recommended {
+            border: 2px solid var(--primary-red);
+            box-shadow: 0 4px 8px rgba(220, 20, 60, 0.2);
+        }
+        .service-card h3 {
+            color: var(--primary-blue);
+            margin-top: 0;
+        }
+        .service-card ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        .service-card li {
+            margin-bottom: 5px;
+        }
+        #pdf-content {
+            display: none;
+            padding: 20px;
+            background-color: #fff;
+            font-family: 'Roboto', sans-serif;
+            color: #000;
+        }
+        #pdf-content h1 {
+            color: var(--primary-blue);
+            text-align: center;
+        }
+        #pdf-content h3 {
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1>Halpha Group</h1>
+            <p>Consultoria em Diversidade, Equidade e Inclusão (DE&I)</p>
+        </header>
+
+        <nav class="navbar">
+            <button onclick="showTab('home')">Início</button>
+            <button onclick="showTab('diagnosis')">Diagnóstico D&I</button>
+            <button id="accessibility-btn">Acessibilidade</button>
+        </nav>
+
+        <div id="home" class="tab-content active">
+            <h2>Sobre a Halpha Group</h2>
+            <p>Oferecemos o melhor serviço para os nossos usuários. Somos uma consultoria em Diversidade, Equidade e Inclusão que auxilia na articulação do compromisso de uma empresa com a DEI, garantindo que esse compromisso seja refletido em todos os canais de comunicação, repercutindo tanto nos funcionários, clientes e partes interessadas.</p>
+            <p>Através de orientação especializada, as empresas podem transformar as suas aspirações de DEI em narrativas tangíveis, promovendo uma cultura de inclusão que eleva a sua marca e se alinha com os valores de um público cada vez mais diversificado e consciente.</p>
+            <p>Clique no botão abaixo para começar o nosso diagnóstico de DEI.</p>
+            <button class="btn" onclick="showTab('diagnosis')">Comece o Diagnóstico D&I</button>
+        </div>
+
+        <div id="diagnosis" class="tab-content">
+            <h2 id="diagnosis-title">Diagnóstico de Diversidade & Inclusão (DD&I)</h2>
+            <p>Como anda o processo de inclusão na sua empresa? O Diagnóstico D&I tem o objetivo de oferecer uma análise resumida e assertiva sobre a situação das ações de inclusão e diversidade em sua organização. Esse diagnóstico serve como um alerta sobre os principais aspectos que a sua empresa precisa atentar durante o desenvolvimento de um programa de gestão de pessoas realmente inclusivo. Para fazer a análise, preencha o formulário!</p>
+
+            <form id="consulting-form">
+                <div class="form-section">
+                    <h2>INFORMAÇÕES DE IDENTIFICAÇÃO</h2>
+                    <p>Os dados coletados são utilizados para que você receba o resultado da avaliação do status de inclusão e diversidade. Não divulgamos, de forma alguma, as informações coletadas através desse formulário. Temos como princípio basilar o respeito a sua privacidade.</p>
+                    <div class="form-group">
+                        <label for="empresa-nome">Qual é o nome da empresa?</label>
+                        <input type="text" id="empresa-nome" name="empresa-nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="empresa-ramo">Qual é o ramo de atividade da empresa?</label>
+                        <input type="text" id="empresa-ramo" name="empresa-ramo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contato-nome">Qual é o nome da pessoa de referência para a consultoria?</label>
+                        <input type="text" id="contato-nome" name="contato-nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contato-email">Informe-nos o e-mail da pessoa de referência!</label>
+                        <input type="email" id="contato-email" name="contato-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contato-telefone">Informe-nos um telefone para contato!</label>
+                        <input type="tel" id="contato-telefone" name="contato-telefone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contato-cargo">Qual é o cargo/função da pessoa de referência?</label>
+                        <input type="text" id="contato-cargo" name="contato-cargo" required>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>PARTE I – ESTRUTURA DO PESSOAL (COMPOSIÇÃO DAS EQUIPES)</h2>
+                    <p>Selecione a opção que mais se aproxima do cenário atual da sua empresa.</p>
+                    <div class="form-group">
+                        <label>Quantos funcionários a empresa tem?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="funcionarios" value="De 01 a 10" required> De 01 a 10</label>
+                            <label><input type="radio" name="funcionarios" value="De 11 a 100"> De 11 a 100</label>
+                            <label><input type="radio" name="funcionarios" value="De 101 a 500"> De 101 a 500</label>
+                            <label><input type="radio" name="funcionarios" value="De 501 a 1000"> De 501 a 1000</label>
+                            <label><input type="radio" name="funcionarios" value="De 1001 a 2000"> De 1001 a 2000</label>
+                            <label><input type="radio" name="funcionarios" value="Mais de 2000"> Mais de 2000</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantos funcionários com deficiência e profissionais reabilitados pela lei de cotas há na empresa atualmente?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="funcionarios-deficiencia" value="0,00%" required> 0,00%</label>
+                            <label><input type="radio" name="funcionarios-deficiencia" value="Menos de 1%"> Menos de 1%</label>
+                            <label><input type="radio" name="funcionarios-deficiencia" value="Mais de um 1%, mas menos que 5%"> Mais de um 1%, mas menos que 5%</label>
+                            <label><input type="radio" name="funcionarios-deficiencia" value="Mais de 5%, mas menos que 10%"> Mais de 5%, mas menos que 10%</label>
+                            <label><input type="radio" name="funcionarios-deficiencia" value="Mais de 10%"> Mais de 10%</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantos colaboradores se identificaram com uma orientação sexual distinta?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="orientacao-sexual" value="0,00%" required> 0,00%</label>
+                            <label><input type="radio" name="orientacao-sexual" value="Menos de 1%"> Menos de 1%</label>
+                            <label><input type="radio" name="orientacao-sexual" value="Mais de um 1%, mas menos que 5%"> Mais de um 1%, mas menos que 5%</label>
+                            <label><input type="radio" name="orientacao-sexual" value="Mais de 5%, mas menos que 10%"> Mais de 5%, mas menos que 10%</label>
+                            <label><input type="radio" name="orientacao-sexual" value="Mais de 10%"> Mais de 10%</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantos colaboradores negros atuam na empresa atualmente?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="colaboradores-negros" value="0,00%" required> 0,00%</label>
+                            <label><input type="radio" name="colaboradores-negros" value="Menos de 1%"> Menos de 1%</label>
+                            <label><input type="radio" name="colaboradores-negros" value="Mais de um 1%, mas menos que 5%"> Mais de um 1%, mas menos que 5%</label>
+                            <label><input type="radio" name="colaboradores-negros" value="Mais de 5%, mas menos que 10%"> Mais de 5%, mas menos que 10%</label>
+                            <label><input type="radio" name="colaboradores-negros" value="Mais de 10%"> Mais de 10%</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantos colaboradores se identificaram com religiões distintas?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="religioes" value="0,00%" required> 0,00%</label>
+                            <label><input type="radio" name="religioes" value="Menos de 1%"> Menos de 1%</label>
+                            <label><input type="radio" name="religioes" value="Mais de um 1%, mas menos que 5%"> Mais de um 1%, mas menos que 5%</label>
+                            <label><input type="radio" name="religioes" value="Mais de 5%, mas menos que 10%"> Mais de 5%, mas menos que 10%</label>
+                            <label><input type="radio" name="religioes" value="Mais de 10%"> Mais de 10%</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Percebe-se uma diversidade cultural e regional na organização?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="diversidade-cultural" value="Sim" required> Sim</label>
+                            <label><input type="radio" name="diversidade-cultural" value="Não"> Não</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Percebe-se uma diversidade linguística na organização?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="diversidade-linguistica" value="Sim" required> Sim</label>
+                            <label><input type="radio" name="diversidade-linguistica" value="Não"> Não</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>PARTE II - ESTRATÉGIAS, PREPARAÇÃO DOS AMBIENTES E ESTRUTURAÇÃO DAS AÇÕES</h2>
+                    <p>Qual das opções a seguir mais se aproxima da realidade da sua empresa?</p>
+                    <div class="form-group">
+                        <label>A empresa implementa programas de capacitação e sensibilização para a inclusão e diversidade?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="programas-capacitacao" value="Sim, com treinamentos periódicos" required> Sim, com treinamentos periódicos</label>
+                            <label><input type="radio" name="programas-capacitacao" value="Sim, mas de forma pontual" > Sim, mas de forma pontual</label>
+                            <label><input type="radio" name="programas-capacitacao" value="Não"> Não</label>
+                            <label><input type="radio" name="programas-capacitacao" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>A empresa possui uma comunicação inclusiva e acessível para todos os colaboradores?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="comunicacao-inclusiva" value="Sim, todas as comunicações são adaptadas (Libras, audiodescrição, braile, etc.)" required> Sim, todas as comunicações são adaptadas (Libras, audiodescrição, braile, etc.)</label>
+                            <label><input type="radio" name="comunicacao-inclusiva" value="Sim, mas apenas algumas comunicações são adaptadas" > Sim, mas apenas algumas comunicações são adaptadas</label>
+                            <label><input type="radio" name="comunicacao-inclusiva" value="Não"> Não</label>
+                            <label><input type="radio" name="comunicacao-inclusiva" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>A empresa possui um código de conduta claro sobre o tema de assédio, preconceito e discriminação?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="codigo-conduta" value="Sim, e todos os colaboradores têm ciência e acesso" required> Sim, e todos os colaboradores têm ciência e acesso</label>
+                            <label><input type="radio" name="codigo-conduta" value="Sim, mas os colaboradores não têm acesso ou ciência" > Sim, mas os colaboradores não têm acesso ou ciência</label>
+                            <label><input type="radio" name="codigo-conduta" value="Não"> Não</label>
+                            <label><input type="radio" name="codigo-conduta" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>A empresa realiza ações para combater a desigualdade de gênero?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="desigualdade-genero" value="Sim, e tem iniciativas para promover a equidade de gênero" required> Sim, e tem iniciativas para promover a equidade de gênero</label>
+                            <label><input type="radio" name="desigualdade-genero" value="Sim, mas com poucas ou sem iniciativas" > Sim, mas com poucas ou sem iniciativas</label>
+                            <label><input type="radio" name="desigualdade-genero" value="Não"> Não</label>
+                            <label><input type="radio" name="desigualdade-genero" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>A empresa possui ações de inclusão de pessoas com deficiência, como treinamentos, acessibilidade, etc.?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="inclusao-pcd" value="Sim, e as ações são abrangentes e bem definidas" required> Sim, e as ações são abrangentes e bem definidas</label>
+                            <label><input type="radio" name="inclusao-pcd" value="Sim, mas de forma superficial" > Sim, mas de forma superficial</label>
+                            <label><input type="radio" name="inclusao-pcd" value="Não"> Não</label>
+                            <label><input type="radio" name="inclusao-pcd" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>A empresa possui um plano de sucessão de carreira para grupos minorizados?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="plano-sucessao" value="Sim" required> Sim</label>
+                            <label><input type="radio" name="plano-sucessao" value="Não"> Não</label>
+                            <label><input type="radio" name="plano-sucessao" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>A empresa busca soluções alternativas para contratação de mão de obra (ex.: colaboradores 50+, refugiados, etc.)?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="solucoes-alternativas" value="Sim" required> Sim</label>
+                            <label><input type="radio" name="solucoes-alternativas" value="Não"> Não</label>
+                            <label><input type="radio" name="solucoes-alternativas" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>PARTE III - GOVERNANÇA E CULTURA</h2>
+                    <p>Qual das opções a seguir mais se aproxima da realidade da sua empresa?</p>
+                    <div class="form-group">
+                        <label>A empresa mede o retorno sobre o investimento (ROI) de suas iniciativas de diversidade e inclusão?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="roi-dei" value="Sim" required> Sim</label>
+                            <label><input type="radio" name="roi-dei" value="Não"> Não</label>
+                            <label><input type="radio" name="roi-dei" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>A alta liderança da empresa defende a inclusão e a diversidade?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="lideranca-dei" value="Sim, a alta liderança defende, investe e se capacita" required> Sim, a alta liderança defende, investe e se capacita</label>
+                            <label><input type="radio" name="lideranca-dei" value="Sim, mas o tema ainda não é prioridade" > Sim, mas o tema ainda não é prioridade</label>
+                            <label><input type="radio" name="lideranca-dei" value="Não, a liderança não se envolve no tema" > Não, a liderança não se envolve no tema</label>
+                            <label><input type="radio" name="lideranca-dei" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>A empresa possui um comitê de diversidade e inclusão ou um grupo de afinidade?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="comite-dei" value="Sim, o comitê é ativo e possui ações bem definidas" required> Sim, o comitê é ativo e possui ações bem definidas</label>
+                            <label><input type="radio" name="comite-dei" value="Sim, mas ainda não é muito ativo" > Sim, mas ainda não é muito ativo</label>
+                            <label><input type="radio" name="comite-dei" value="Não"> Não</label>
+                            <label><input type="radio" name="comite-dei" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>As ações de diversidade e inclusão são compartilhadas nas redes sociais da empresa?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="acoes-redes-sociais" value="Sim, e o tema é abordado em todas as comunicações da empresa" required> Sim, e o tema é abordado em todas as comunicações da empresa</label>
+                            <label><input type="radio" name="acoes-redes-sociais" value="Sim, mas de forma pontual" > Sim, mas de forma pontual</label>
+                            <label><input type="radio" name="acoes-redes-sociais" value="Não"> Não</label>
+                            <label><input type="radio" name="acoes-redes-sociais" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Há uma política de equidade salarial na empresa?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="equidade-salarial" value="Sim, e a empresa realiza análises periódicas" required> Sim, e a empresa realiza análises periódicas</label>
+                            <label><input type="radio" name="equidade-salarial" value="Sim, mas não é auditada com frequência" > Sim, mas não é auditada com frequência</label>
+                            <label><input type="radio" name="equidade-salarial" value="Não"> Não</label>
+                            <label><input type="radio" name="equidade-salarial" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>PARTE IV - COMUNICAÇÃO E PERFIL DOS PROFISSIONAIS</h2>
+                    <p>Qual das opções a seguir mais se aproxima da realidade da sua empresa?</p>
+                    <div class="form-group">
+                        <label>A empresa realizou um censo de diversidade para compreender o perfil da população interna?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="censo-diversidade" value="Sim" required> Sim</label>
+                            <label><input type="radio" name="censo-diversidade" value="Não"> Não</label>
+                            <label><input type="radio" name="censo-diversidade" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Há acessibilidade para pessoas com deficiência nas plataformas de treinamento, nos comunicados e no ambiente físico?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="acessibilidade-pcd" value="Sim, o ambiente é 100% acessível" required> Sim, o ambiente é 100% acessível</label>
+                            <label><input type="radio" name="acessibilidade-pcd" value="Sim, mas de forma parcial" > Sim, mas de forma parcial</label>
+                            <label><input type="radio" name="acessibilidade-pcd" value="Não"> Não</label>
+                            <label><input type="radio" name="acessibilidade-pcd" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>O processo de Recrutamento & Seleção da empresa adota um olhar inclusivo para contratação?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="recrutamento-inclusivo" value="Sim, com processos seletivos às cegas, entrevistas com representantes de minorias, etc." required> Sim, com processos seletivos às cegas, entrevistas com representantes de minorias, etc.</label>
+                            <label><input type="radio" name="recrutamento-inclusivo" value="Sim, mas com poucas ou sem iniciativas" > Sim, mas com poucas ou sem iniciativas</label>
+                            <label><input type="radio" name="recrutamento-inclusivo" value="Não"> Não</label>
+                            <label><input type="radio" name="recrutamento-inclusivo" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>PARTE V - RELAÇÃO COM A SOCIEDADE E IMPACTO SOCIAL</h2>
+                    <p>Qual das opções a seguir mais se aproxima da realidade da sua empresa?</p>
+                    <div class="form-group">
+                        <label>A empresa possui projetos de Responsabilidade Social?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="responsabilidade-social" value="Sim" required> Sim</label>
+                            <label><input type="radio" name="responsabilidade-social" value="Não"> Não</label>
+                            <label><input type="radio" name="responsabilidade-social" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>A empresa incentiva os colaboradores em ações de voluntariado?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="voluntariado" value="Sim" required> Sim</label>
+                            <label><input type="radio" name="voluntariado" value="Não"> Não</label>
+                            <label><input type="radio" name="voluntariado" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>A empresa possui políticas claras para prevenir o assédio sexual e moral e a discriminação?</label>
+                        <div class="options-container">
+                            <label><input type="radio" name="politicas-prevencao" value="Sim, com um canal de denúncias seguro" required> Sim, com um canal de denúncias seguro</label>
+                            <label><input type="radio" name="politicas-prevencao" value="Sim, mas com um canal pouco conhecido" > Sim, mas com um canal pouco conhecido</label>
+                            <label><input type="radio" name="politicas-prevencao" value="Não"> Não</label>
+                            <label><input type="radio" name="politicas-prevencao" value="Não sei responder"> Não sei responder</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Por favor, escreva um pouco mais sobre a sua demanda.</label>
+                    <textarea id="demanda-descricao" name="demanda-descricao" rows="5" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Existe alguma outra informação que queira nos passar?</label>
+                    <textarea id="outras-informacoes" name="outras-informacoes" rows="5"></textarea>
+                </div>
+                
+                <button type="submit" class="btn">Gerar Diagnóstico e Briefing</button>
+            </form>
+
+            <div id="result-container" class="result-container">
+                <h2>Resultado do Diagnóstico</h2>
+                <div class="result-score" id="result-score"></div>
+                <div class="result-analysis" id="result-analysis"></div>
+                
+                <h3>Serviços Recomendados</h3>
+                <p>Com base nas suas respostas, a Halpha Group sugere os seguintes serviços para ajudar a sua empresa a evoluir em sua jornada de DEI:</p>
+                <div class="services-list" id="services-list">
+                    </div>
+                
+                <div style="margin-top: 30px;">
+                    <button class="btn" onclick="downloadPDF()">Baixar Diagnóstico & Briefing em PDF</button>
+                    <button class="btn" onclick="sendEmail()">Enviar por E-mail</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="pdf-content">
+            <h1>Relatório de Diagnóstico e Briefing</h1>
+            
+            <div id="pdf-diagnosis-content">
+                </div>
+            
+            <div id="pdf-briefing-content">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('consulting-form');
+        const resultContainer = document.getElementById('result-container');
+        const pdfContent = document.getElementById('pdf-content');
+        const pdfDiagnosisContent = document.getElementById('pdf-diagnosis-content');
+        const pdfBriefingContent = document.getElementById('pdf-briefing-content');
+
+        // Função para alternar as abas
+        function showTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Funções de acessibilidade
+        document.getElementById('accessibility-btn').addEventListener('click', () => {
+            document.body.classList.toggle('high-contrast');
+            document.body.classList.toggle('dyslexic-font');
+        });
+
+        // Lógica para mostrar/esconder o campo "Outro"
+        const formSections = document.querySelectorAll('.form-section');
+        formSections.forEach(section => {
+            section.addEventListener('change', (event) => {
+                if (event.target.type === 'radio' && event.target.value === 'Outro(a)') {
+                    const otherInput = document.createElement('input');
+                    otherInput.type = 'text';
+                    otherInput.className = 'other-input';
+                    otherInput.placeholder = 'Especifique';
+                    otherInput.name = event.target.name + '-other';
+                    event.target.closest('.form-group').appendChild(otherInput);
+                    otherInput.focus();
+                } else {
+                    const otherInput = event.target.closest('.form-group')?.querySelector('.other-input');
+                    if (otherInput) {
+                        otherInput.remove();
+                    }
+                }
+            });
+        });
+
+        // Lógica de pontuação e análise do diagnóstico
+        const scoreData = {
+            'funcionarios-deficiencia': { '0,00%': 1, 'Menos de 1%': 2, 'Mais de um 1%, mas menos que 5%': 3, 'Mais de 5%, mas menos que 10%': 4, 'Mais de 10%': 5 },
+            'orientacao-sexual': { '0,00%': 1, 'Menos de 1%': 2, 'Mais de um 1%, mas menos que 5%': 3, 'Mais de 5%, mas menos que 10%': 4, 'Mais de 10%': 5 },
+            'colaboradores-negros': { '0,00%': 1, 'Menos de 1%': 2, 'Mais de um 1%, mas menos que 5%': 3, 'Mais de 5%, mas menos que 10%': 4, 'Mais de 10%': 5 },
+            'religioes': { '0,00%': 1, 'Menos de 1%': 2, 'Mais de um 1%, mas menos que 5%': 3, 'Mais de 5%, mas menos que 10%': 4, 'Mais de 10%': 5 },
+            'diversidade-cultural': { 'Sim': 5, 'Não': 1 },
+            'diversidade-linguistica': { 'Sim': 5, 'Não': 1 },
+            'programas-capacitacao': { 'Sim, com treinamentos periódicos': 5, 'Sim, mas de forma pontual': 3, 'Não': 1, 'Não sei responder': 2 },
+            'comunicacao-inclusiva': { 'Sim, todas as comunicações são adaptadas (Libras, audiodescrição, braile, etc.)': 5, 'Sim, mas apenas algumas comunicações são adaptadas': 3, 'Não': 1, 'Não sei responder': 2 },
+            'codigo-conduta': { 'Sim, e todos os colaboradores têm ciência e acesso': 5, 'Sim, mas os colaboradores não têm acesso ou ciência': 3, 'Não': 1, 'Não sei responder': 2 },
+            'desigualdade-genero': { 'Sim, e tem iniciativas para promover a equidade de gênero': 5, 'Sim, mas com poucas ou sem iniciativas': 3, 'Não': 1, 'Não sei responder': 2 },
+            'inclusao-pcd': { 'Sim, e as ações são abrangentes e bem definidas': 5, 'Sim, mas de forma superficial': 3, 'Não': 1, 'Não sei responder': 2 },
+            'plano-sucessao': { 'Sim': 5, 'Não': 1, 'Não sei responder': 2 },
+            'solucoes-alternativas': { 'Sim': 5, 'Não': 1, 'Não sei responder': 2 },
+            'roi-dei': { 'Sim': 5, 'Não': 1, 'Não sei responder': 2 },
+            'lideranca-dei': { 'Sim, a alta liderança defende, investe e se capacita': 5, 'Sim, mas o tema ainda não é prioridade': 3, 'Não, a liderança não se envolve no tema': 1, 'Não sei responder': 2 },
+            'comite-dei': { 'Sim, o comitê é ativo e possui ações bem definidas': 5, 'Sim, mas ainda não é muito ativo': 3, 'Não': 1, 'Não sei responder': 2 },
+            'acoes-redes-sociais': { 'Sim, e o tema é abordado em todas as comunicações da empresa': 5, 'Sim, mas de forma pontual': 3, 'Não': 1, 'Não sei responder': 2 },
+            'equidade-salarial': { 'Sim, e a empresa realiza análises periódicas': 5, 'Sim, mas não é auditada com frequência': 3, 'Não': 1, 'Não sei responder': 2 },
+            'censo-diversidade': { 'Sim': 5, 'Não': 1, 'Não sei responder': 2 },
+            'acessibilidade-pcd': { 'Sim, o ambiente é 100% acessível': 5, 'Sim, mas de forma parcial': 3, 'Não': 1, 'Não sei responder': 2 },
+            'recrutamento-inclusivo': { 'Sim, com processos seletivos às cegas, entrevistas com representantes de minorias, etc.': 5, 'Sim, mas com poucas ou sem iniciativas': 3, 'Não': 1, 'Não sei responder': 2 },
+            'responsabilidade-social': { 'Sim': 5, 'Não': 1, 'Não sei responder': 2 },
+            'voluntariado': { 'Sim': 5, 'Não': 1, 'Não sei responder': 2 },
+            'politicas-prevencao': { 'Sim, com um canal de denúncias seguro': 5, 'Sim, mas com um canal pouco conhecido': 3, 'Não': 1, 'Não sei responder': 2 },
+        };
+
+        const services = [
+            { name: 'Consultoria e Estratégia de DEI', description: 'Serviço para criar e implementar um programa completo de diversidade, equidade e inclusão.' },
+            { name: 'Palestras e Workshops', description: 'Treinamentos sobre temas de DEI, como viés inconsciente, liderança inclusiva e letramento racial.' },
+            { name: 'Mentoria de Carreira', description: 'Acompanhamento individual para profissionais de grupos sub-representados, fortalecendo a liderança e a retenção de talentos.' },
+            { name: 'Censo de Diversidade', description: 'Mapeamento demográfico detalhado da sua força de trabalho para identificar gaps e oportunidades de inclusão.' },
+            { name: 'Diagnóstico de Clima Organizacional', description: 'Análise do ambiente de trabalho para identificar pontos de melhoria na cultura de inclusão.' },
+            { name: 'Desenvolvimento de Políticas Inclusivas', description: 'Criação ou revisão de políticas internas para garantir a equidade salarial, o combate ao assédio e a promoção de carreiras.' },
+        ];
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const answers = {};
+            let totalScore = 0;
+            const totalQuestions = Object.keys(scoreData).length;
+
+            for (let [key, value] of formData.entries()) {
+                if (scoreData[key]) {
+                    answers[key] = value;
+                    totalScore += scoreData[key][value] || 0;
+                }
+            }
+
+            let analysisText = "";
+            let recommendedServices = [];
+
+            if (totalScore < 50) {
+                analysisText = "O resultado do seu diagnóstico indica que a empresa está nos estágios iniciais da jornada de Diversidade e Inclusão. Há uma oportunidade significativa de crescimento na área de DEI. Ações básicas de conscientização e mapeamento do cenário atual são recomendadas para começar.";
+                recommendedServices = ['Consultoria e Estratégia de DEI', 'Palestras e Workshops', 'Censo de Diversidade'];
+            } else if (totalScore >= 50 && totalScore < 80) {
+                analysisText = "O resultado sugere que a empresa já possui algumas iniciativas de Diversidade e Inclusão, mas ainda há espaço para aprimoramento. É importante aprofundar as ações existentes e investir em áreas menos exploradas para garantir uma cultura de inclusão mais robusta.";
+                recommendedServices = ['Consultoria e Estratégia de DEI', 'Desenvolvimento de Políticas Inclusivas', 'Diagnóstico de Clima Organizacional'];
+            } else {
+                analysisText = "Parabéns! O resultado aponta que a empresa já possui um programa avançado de Diversidade e Inclusão, com iniciativas bem estruturadas e um forte compromisso da liderança. O próximo passo é focar na sustentabilidade do programa e na ampliação do impacto social.";
+                recommendedServices = ['Mentoria de Carreira', 'Desenvolvimento de Políticas Inclusivas', 'Palestras e Workshops'];
+            }
+            
+            // Gerar HTML para os serviços recomendados
+            const servicesHtml = services.map(service => {
+                const isRecommended = recommendedServices.includes(service.name);
+                return `
+                    <div class="service-card ${isRecommended ? 'recommended' : ''}">
+                        <h3>${service.name}</h3>
+                        <p>${service.description}</p>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('result-score').textContent = `Pontuação: ${totalScore} de ${totalQuestions * 5}`;
+            document.getElementById('result-analysis').textContent = analysisText;
+            document.getElementById('services-list').innerHTML = servicesHtml;
+
+            resultContainer.style.display = 'block';
+            showTab('diagnosis');
+        });
+
+        // Funções de PDF e E-mail
+        async function generatePDFContent() {
+            pdfDiagnosisContent.innerHTML = '<h3>Diagnóstico de Diversidade & Inclusão (DD&I)</h3>';
+            pdfDiagnosisContent.innerHTML += `<p><strong>Pontuação:</strong> ${document.getElementById('result-score').textContent}</p>`;
+            pdfDiagnosisContent.innerHTML += `<p><strong>Análise:</strong> ${document.getElementById('result-analysis').textContent}</p>`;
+
+            // Adicionar os serviços recomendados ao PDF
+            const recommendedServicesHtml = document.getElementById('services-list').innerHTML;
+            pdfDiagnosisContent.innerHTML += '<h4>Serviços Recomendados</h4>';
+            pdfDiagnosisContent.innerHTML += `<div class="services-list">${recommendedServicesHtml}</div>`;
+            
+            pdfBriefingContent.innerHTML = '<h3>Briefing de Consultoria</h3>';
+            const formData = new FormData(form);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                const label = document.querySelector(`label[for="${key}"]`)?.textContent || key;
+                data[label] = value;
+            }
+
+            for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                    pdfBriefingContent.innerHTML += `<p><strong>${key}:</strong> ${data[key]}</p>`;
+                }
+            }
+        }
+
+        async function downloadPDF() {
+            await generatePDFContent();
+            pdfContent.style.display = 'block';
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            const element = document.getElementById('pdf-content');
+
+            html2canvas(element, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgProps = doc.getImageProperties(imgData);
+                const pdfWidth = doc.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                doc.save('Diagnostico_Briefing_Halpha.pdf');
+                
+                pdfContent.style.display = 'none';
+            });
+        }
+        
+        async function sendEmail() {
+            await generatePDFContent();
+            pdfContent.style.display = 'block';
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            const element = document.getElementById('pdf-content');
+
+            html2canvas(element, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgProps = doc.getImageProperties(imgData);
+                const pdfWidth = doc.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                
+                const pdfBlob = doc.output('blob');
+                const file = new File([pdfBlob], 'Diagnostico_Briefing_Halpha.pdf', { type: 'application/pdf' });
+                
+                const subject = encodeURIComponent("Diagnóstico e Briefing de Consultoria - Halpha Group");
+                const contactName = form.elements['contato-nome'].value;
+                const bodyText = encodeURIComponent(`Prezados,\n\nEm anexo, segue o diagnóstico e briefing de consultoria da minha empresa. Agradeço o contato.\n\nAtenciosamente,\n${contactName}`);
+                
+                const mailtoLink = `mailto:halphagroup.ofc@gmail.com?subject=${subject}&body=${bodyText}`;
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(file);
+                link.download = "Diagnostico_Briefing_Halpha.pdf";
+                link.click();
+                
+                window.location.href = mailtoLink;
+                pdfContent.style.display = 'none';
+
+                alert("O PDF de diagnóstico e briefing foi gerado e baixado. Agora, envie-o para o nosso e-mail. Uma nova janela de e-mail foi aberta para você.");
+            });
+        }
+    </script>
+</body>
+</html>
